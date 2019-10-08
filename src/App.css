@@ -1,7 +1,9 @@
 .App {
   text-align: center;
 }
-
+.App h1 {
+  margin-bottom: 1rem
+}
 .App-logo {
   height: 40vmin;
 }
@@ -19,4 +21,9 @@
 
 .App-link {
   color: #09d3ac;
+}
+
+
+.table__container{
+  margin-top: 3rem
 }

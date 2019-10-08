@@ -1,24 +1,45 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from "react";
+import Input from './components/common/forms/field'
+import Button from './components/common/forms/button'
+import "./App.css";
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className="App container">
+      <h1>Upload Image</h1>
+      <div class="input-group mb-3">
+        <div class="custom-file">
+          <Input
+            type="file"
+            name="upload_image"
+            class="custom-file-input"
+            id="inputGroupFile01"
+            labelclass="custom-file-label"
+            label="Choose File"
+          />
+        </div>
+        &nbsp;
+        <Button
+          buttonLabel="Upload Image"
+          className="btn btn-outline-primary"
+        />
+      </div>
+      <div className="table__container">
+        <table class="table table-hover">
+          <thead>
+            <tr>
+              <th scope="col">Document Name</th>
+              <th scope="col">Uploaded At</th>
+              <th scope="col">Download</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="text-center">
+              <td colspan="4">No Result</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   );
 }
