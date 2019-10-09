@@ -22,14 +22,19 @@ class App extends React.Component{
 
   onSubmit = () => {
     const formData = new FormData();
-    formData.append(
-      "myFile",
-      this.state.selectedFile,
-      this.state.selectedFile.name
-    );
-    axios.post("apiurl", formData).then((res) => {
-      console.log(res,"resss")
-    });
+    formData.append("myFile", this.state.selectFile, this.state.name);
+    axios
+      .post(
+        " https://6bmi7boqjd.execute-api.us-east-2.amazonaws.com/default/AWSLambda2",
+        formData,{
+          headers: {
+            "Content-type":"application/json"
+          }
+        }
+      )
+      .then(res => {
+        console.log(res, "resss");
+      }).catch((err) => console.log(err,"err"));
   }
 
   onDownloadFile = (params) => {
