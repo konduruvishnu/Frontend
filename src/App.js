@@ -25,16 +25,18 @@ class App extends React.Component{
     formData.append("myFile", this.state.selectFile, this.state.name);
     axios
       .post(
-        " https://6bmi7boqjd.execute-api.us-east-2.amazonaws.com/default/AWSLambda2",
-        formData,{
+        "https://8ageors5wj.execute-api.us-east-2.amazonaws.com/default/AWSLambda2",
+        formData,
+        {
           headers: {
-            "Content-type":"application/json"
+            "Content-type": "application/json"
           }
         }
       )
       .then(res => {
         console.log(res, "resss");
-      }).catch((err) => console.log(err,"err"));
+      })
+      .catch(err => console.log(err, "err"));
   }
 
   onDownloadFile = (params) => {
