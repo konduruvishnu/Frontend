@@ -3,41 +3,139 @@ import Input from './components/common/forms/field'
 import Button from './components/common/forms/button'
 import axios from 'axios';
 import "./App.css";
+import { parse } from "@babel/core";
+
 
 class App extends React.Component{
   state={
     selectFile:null,
-    name:''
-  }
-  handleSelectedFile = (e) =>{
-    e.preventDefault();
-    this.setState(
-      {
-        selectFile: e.target.files[0],
-        name: e.target.files[0].name
-      },
-      () => console.log(this.state, "state")
-    );
+    name:'',
+    fileuploadlist:null,
   }
 
-  onSubmit = () => {
-    const formData = new FormData();
-    formData.append("myFile", this.state.selectFile, this.state.name);
-    axios
-      .post(
-        "https://8ageors5wj.execute-api.us-east-2.amazonaws.com/default/AWSLambda2",
-        formData,
+
+  
+   handleSelectedFile = (e) =>{
+    //var filebuffer=null;
+    let files = e.target.files;
+
+    var fileInfo=null;
+var file = files[0];
+    var reader = new FileReader();
+    reader.onload = (evt) =>{
+      // https://www.w3.org/TR/FileAPI/#dom-filereader-readystate
+      if (evt.target.readyState == FileReader.DONE) {                    
+          var arrayBuffer = evt.target.result;                    
+           fileInfo = {
+              "name": file.name,
+              "content": this._arrayBufferToBase64(arrayBuffer)//,
+              
+          };
+        
+
+      }
+
+      this.setState(
         {
+          selectFile: fileInfo,
+          name: fileInfo.name
+        },
+        () => console.log(this.state, "state")
+      );
+      
+  }
+
+  reader.readAsArrayBuffer(file);
+    e.preventDefault();
+  };
+
+   _arrayBufferToBase64(buffer) {
+    var binary = '';
+    var bytes = new Uint8Array(buffer);
+    var len = bytes.byteLength;
+    for (var i = 0; i < len; i++) {
+        binary += String.fromCharCode(bytes[i]);
+    }
+    return window.btoa(binary);
+}
+
+  onSubmit = () => {
+    console.log(this.state.selectFile);
+    //formData.append("myFile", this.state.selectFile);
+    //console.log(formData);
+    return fetch("https://4dfbkq7d87.execute-api.us-east-2.amazonaws.com/Prod",{
+        body:JSON.stringify(this.state.selectFile),
+        method:"PUT",
+        mode:"cors",
           headers: {
-            "Content-type": "application/json"
+            "Access-Control-Allow-Origin":"*",
+            "Content-type": "text/plain"
+            
           }
         }
       )
-      .then(res => {
-        console.log(res, "resss");
+      .then(function(response) {
+        console.log(response);
+        if (!response.ok) {
+          throw Error(response.statusText);
+        }
       })
-      .catch(err => console.log(err, "err"));
-  }
+      // .then(response=>{
+      //   this.onfilelistsubmit();
+      // })
+      .catch(err=>{
+        this.onfilelistsubmit();
+        console.log(err)
+      })
+    }
+
+    onfilelistsubmit=()=>{
+      return fetch("https://4dfbkq7d87.execute-api.us-east-2.amazonaws.com/Prod",{
+        method:"GET",
+        mode:"cors",
+          headers: {
+            "Access-Control-Allow-Origin":"*",
+            "Content-type": "application/json"
+            
+          }
+        }
+      )
+      .then(response => {
+        response.json().then(res => {
+          console.log(res);
+          this.setState({ fileuploadlist: res.body});
+        });
+        //var res= ndjsonStream(response.body).getReader().read();
+        
+        //return res.result;
+    })
+    
+
+    }
+    
+
+      
+
+  // onSubmitaxios = () => {
+  //   console.log(this.state.selectFile);
+  //  // formData.append("myFile", this.state.selectFile, this.state.name);
+  //   axios
+  //     .put(
+  //       "https://regclv3878.execute-api.us-east-2.amazonaws.com/Prod",
+  //       JSON.stringify(this.state.selectFile),        
+  //       {
+  //         mode:"cors",
+  //         headers: {
+  //           "Access-Control-Allow-Origin":"*",
+  //           "Content-type": "application/json"
+  //         }
+  //       }
+  //     )
+  //     .then(res => {
+  //       console.log(res, "resss");
+  //     })
+  //     .catch(err => console.log(err, "err"));
+  // }
 
   onDownloadFile = (params) => {
       axios({
@@ -55,6 +153,7 @@ class App extends React.Component{
   }
 
   render(){
+    var fileuploadlist=JSON.parse(this.state.fileuploadlist);
     return (
       <div className="App container">
         <h1>Upload Image</h1>
@@ -66,8 +165,9 @@ class App extends React.Component{
               // class="custom-file-input"
               id="inputGroupFile01"
               labelclass="custom-file-label"
+              single="single"
               label={this.state.name || "Choose File"}
-              onChange={this.handleSelectedFile}
+              onChange={(e) => this.handleSelectedFile(e)}
             />
           </div>
           &nbsp;
@@ -75,6 +175,11 @@ class App extends React.Component{
             buttonLabel="Upload Image"
             className="btn btn-outline-primary"
             onClick={this.onSubmit}
+          />
+          <Button
+            buttonLabel="List Document"
+            className="btn btn-outline-primary"
+            onClick={this.onfilelistsubmit}
           />
         </div>
         <div className="table__container">
@@ -86,17 +191,18 @@ class App extends React.Component{
                 <th scope="col">Download</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody>            
+            {fileuploadlist && fileuploadlist.map((data, key) =>
               <tr>
-                <td scope="col">doc</td>
-                <td scope="col">date</td>
-                <td scope="col"><Button value="Download"/></td>
-              </tr>
+                <td scope="col">{data.Name}</td>
+                <td scope="col">{data.CreatedTimestamp}</td>
+                <td scope="col"><button type="button" attr-tag={data.Id}>DownloadFile</button></td>
+              </tr>)}
             </tbody>
           </table>
         </div>
       </div>
-    );
+    )
   }
 }
 
